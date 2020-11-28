@@ -23,6 +23,12 @@ class Grid
     columns
   end
 
+  def update(input)
+    update_horizontal(input.reversed_index, input.token)
+    update_vertical(input.column_index, input.token)
+    update_diagonal([input.column_index, input.row_index], input.token)
+  end
+
   def update_horizontal(index, unicode)
     slot_found = false
     horizontal.each do |line|

@@ -1,17 +1,25 @@
 require_relative 'grid.rb'
+require_relative 'input.rb'
 
 class Game < Grid
-  attr_accessor :grid, :board, :new_input, :turn_count, :game_won
+  attr_accessor :player1, :player2, :grid, :board, :input, :turn_count, :game_won, :game_draw
 
   def initialize
     @grid = Grid.new
-    @board = draw_board
-    @turn_count = 0
+    @board = game_board
+    @turn_count = 1
     @game_won = false
-    @new_input = {}
+    @game_draw = false
+    @player1 = prompt_player
+    @player2 = prompt_player
   end
 
-  def draw_board
+  def prompt_player
+    puts "Who's playing"
+    gets.chomp!
+  end
+
+  def game_board
     rows = String.new
     grid.horizontal.each do |line|
       line.each { |val| rows += val.encode('utf-8') }
@@ -20,55 +28,48 @@ class Game < Grid
     rows.reverse + "\n  1  2  3  4  5  6  7"
   end
 
-  def start  
+  def start
     while !game_won
-      puts "#{player.keys[0]}'s turn, choose slot"
-      new_input.store('input', gets.chomp!.to_i)
+      @input = next_turn
 
-      valid_input? ? update_grids : redo
-      status
-      puts draw_board
-      puts "Game Over: #{player.keys[0]} wins" if game_won
+      redo unless input.is_valid
+      grid.update(input)
+
+      win_check
+
+      puts game_board, game_status
+
+      break if game_draw
+
       @turn_count += 1
     end
   end
 
-  def player
-    player1 =  { PLAYER_1: "\u26BD " }
-    player2 =  { PLAYER_2: "\u26D4 " }
-    if turn_count.zero? || turn_count.even?
-      player1
+  def next_turn
+    if turn_count.odd?
+      Input.new(player1, "\u26BD ", grid)
     else
-      player2
+      Input.new(player2, "\u26D4 ", grid)
     end
   end
 
-  def valid_input?
-    input = new_input.values[0]
-    avail_slot = grid.vertical[input-1].count("\u26AA ")
-
-    new_input[:row_num] = 6 - avail_slot
-    new_input[:col_num] = input-1
-    new_input[:rev_ind] = (input-7).abs  #reversed index for '#draw_board' return
-    new_input[:unicode] = player.values[0]
-
-    input.between?(1,7) && avail_slot > 0
+  def win_check
+    connect_four = input.token * 4
+    grid.instance_variables.each do |coordinate|
+      line = grid.instance_variable_get(coordinate)
+      line.each { |line| @game_won = true if line.join.include? connect_four}
+    end
   end
 
-  def update_grids
-    grid.update_horizontal(new_input[:rev_ind], new_input[:unicode])
-    grid.update_vertical(new_input[:col_num], new_input[:unicode])
-    grid.update_diagonal([new_input[:col_num], new_input[:row_num]], new_input[:unicode])
-  end
-  #ruby ./lib/connect_four.rb
-  def status
-    connect_four = player.values[0] * 4
-    grid.horizontal.each { |line| @game_won = true if line.join.include? connect_four}
-    grid.vertical.each { |line| @game_won = true if line.join.include? connect_four }
-    grid.diagonal.each { |line| @game_won = true if line.join.include? connect_four}
-    game_won
+  def game_status
+    if game_won
+      "Game Over: #{input.player} wins!" if game_won
+    elsif !game_won && turn_count == 42
+      @game_draw = true
+      "Game Over: the game is draw"
+    end
   end
 end
 
-x = Game.new
-x.start
+connect_four = Game.new
+connect_four.start
