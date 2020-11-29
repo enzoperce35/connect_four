@@ -56,8 +56,8 @@ class Game < Grid
   def win_check
     connect_four = input.token * 4
     grid.instance_variables.each do |coordinate|
-      line = grid.instance_variable_get(coordinate)
-      line.each { |line| @game_won = true if line.join.include? connect_four}
+      coor = grid.instance_variable_get(coordinate)
+      coor.each { |line| @game_won = true if line.join.include? connect_four}
     end
   end
 

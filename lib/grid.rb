@@ -29,39 +29,41 @@ class Grid
     update_diagonal([input.column_index, input.row_index], input.token)
   end
 
-  def update_horizontal(index, unicode)
+  def update_horizontal(index, token)
     slot_found = false
     horizontal.each do |line|
       if line[index] == "\u26AA " && !slot_found
-        line[index] = unicode
+        line[index] = token
         slot_found
         break
       end
     end
   end
 
-  def update_vertical(index, unicode)
+  def update_vertical(index, token)
     slot_found = false
     vertical[index].each_with_index do |slot,ind|
       if slot == "\u26AA " && !slot_found
-        vertical[index][ind] = unicode
+        vertical[index][ind] = token
         slot_found
         break
       end
     end
   end
 
-  def update_diagonal(input, unicode)
+  def update_diagonal(input, token)
     @diagonal = [[],[]]
-    check_sequences(input, unicode, 'forward')
-    check_sequences(input, unicode, 'backward')
+    check_sequences(input, token, 'forward')
+    check_sequences(input, token, 'backward')
   end
 
-  def diagonal_points(input, dir)
+  def diagonal_points(input, direction)
     return nil if input.nil?
-    if dir == 'forward'
+
+    case direction
+    when 'forward'
       [[input[0]+1,input[1]+1],[input[0]-1,input[1]-1]]
-    elsif dir == 'backward'
+    when 'backward'
       [[input[0]-1,input[1]+1], [input[0]+1,input[1]-1]]
     end
   end
