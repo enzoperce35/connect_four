@@ -2,7 +2,8 @@ require_relative 'grid.rb'
 require_relative 'input.rb'
 
 class Game < Grid
-  attr_accessor :player1, :player2, :grid, :board, :input, :turn_count, :game_won, :game_draw
+  attr_accessor :player1, :player2, :grid, :board, :input, :turn_count,
+                :game_won, :game_draw
 
   def initialize
     @grid = Grid.new
@@ -10,15 +11,17 @@ class Game < Grid
     @turn_count = 1
     @game_won = false
     @game_draw = false
-    @player1 = prompt_player
-    @player2 = prompt_player
+    @player1 = "John" #prompt_player  #commented to give a default value "John" for rspec
+    @player2 = "Mark" #prompt_player  #commented to give a default value "Mark" for rspec
   end
 
+  #prompts users for their name
   def prompt_player
     puts "Who's playing"
     gets.chomp!
   end
 
+  #draws the current game board status
   def game_board
     rows = String.new
     grid.horizontal.each do |line|
@@ -28,6 +31,7 @@ class Game < Grid
     rows.reverse + "\n  1  2  3  4  5  6  7"
   end
 
+  #initiates and ends the game
   def start
     while !game_won
       @input = next_turn
@@ -35,7 +39,7 @@ class Game < Grid
       redo unless input.is_valid
       grid.update(input)
 
-      win_check
+      check_coordinates
 
       puts game_board, game_status
 
@@ -45,6 +49,7 @@ class Game < Grid
     end
   end
 
+  #switches players everytime :turn_count is incremented
   def next_turn
     if turn_count.odd?
       Input.new(player1, "\u26BD ", grid)
@@ -53,14 +58,21 @@ class Game < Grid
     end
   end
 
-  def win_check
-    connect_four = input.token * 4
-    grid.instance_variables.each do |coordinate|
-      coor = grid.instance_variable_get(coordinate)
-      coor.each { |line| @game_won = true if line.join.include? connect_four}
+  #checks every grid to look for a possible 4 consecutive tokens
+  def check_coordinates
+    grid.instance_variables.each do |coord|
+      coordinate = grid.instance_variable_get(coord)
+      check_grid_lines(coordinate)
     end
   end
 
+  def check_grid_lines(coordinate)
+    connect_four = input.token * 4
+    coordinate.each { |line| @game_won = true if line.join.include? connect_four }
+    game_won
+  end
+
+  #outputs a message if the game is won or the game is draw
   def game_status
     if game_won
       "Game Over: #{input.player} wins!" if game_won
@@ -70,6 +82,3 @@ class Game < Grid
     end
   end
 end
-
-connect_four = Game.new
-connect_four.start
