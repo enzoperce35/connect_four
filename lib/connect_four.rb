@@ -1,16 +1,16 @@
 require_relative 'grid.rb'
 require_relative 'input.rb'
 
-class Game < Grid
-  attr_accessor :player1, :player2, :grid, :board, :input, :turn_count,
-                :game_won, :game_draw
+class ConnectFour < Grid
+  attr_accessor :player1, :player2, :grid, :game_board, :input, :turn_count,
+                :won, :draw
 
   def initialize
     @grid = Grid.new
-    @board = game_board
+    @game_board = board
     @turn_count = 1
-    @game_won = false
-    @game_draw = false
+    @won = false
+    @draw = false
     @player1 = "John" #prompt_player  #commented to give a default value "John" for rspec
     @player2 = "Mark" #prompt_player  #commented to give a default value "Mark" for rspec
   end
@@ -22,31 +22,13 @@ class Game < Grid
   end
 
   #draws the current game board status
-  def game_board
+  def board
     rows = String.new
     grid.horizontal.each do |line|
       line.each { |val| rows += val.encode('utf-8') }
       rows += "\n"
     end
     rows.reverse + "\n  1  2  3  4  5  6  7"
-  end
-
-  #initiates and ends the game
-  def start
-    while !game_won
-      @input = next_turn
-
-      redo unless input.is_valid
-      grid.update(input)
-
-      check_coordinates
-
-      puts game_board, game_status
-
-      break if game_draw
-
-      @turn_count += 1
-    end
   end
 
   #switches players everytime :turn_count is incremented
@@ -68,16 +50,16 @@ class Game < Grid
 
   def check_grid_lines(coordinate)
     connect_four = input.token * 4
-    coordinate.each { |line| @game_won = true if line.join.include? connect_four }
-    game_won
+    coordinate.each { |line| @won = true if line.join.include? connect_four }
+    won
   end
 
   #outputs a message if the game is won or the game is draw
-  def game_status
-    if game_won
-      "Game Over: #{input.player} wins!" if game_won
-    elsif !game_won && turn_count == 42
-      @game_draw = true
+  def status
+    if won
+      "Game Over: #{input.player} wins!" if won
+    elsif !won && turn_count == 42
+      @draw = true
       "Game Over: the game is draw"
     end
   end
