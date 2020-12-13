@@ -13,14 +13,14 @@ class Input
   def ask_input
     inp = 0
     puts "#{player}'s turn: choose your slot, drop #{token}"
-    inp = gets.chomp!.to_i until inp.between?(1,7)
+    inp = $stdin.gets.chomp!.to_i until inp.between?(1,7)
     inp
   end
 
   def input_attributes
     @avail_vertical = grid.vertical[input-1].count("\u26AA ")
-    @row_index = 6 - avail_vertical
-    @column_index = input - 1
+    @column_index = 6 - avail_vertical
+    @row_index = input - 1
     @reversed_index = (input-7).abs  #reversed index for '#board' display
     @is_valid = input.between?(1,7) && avail_vertical > 0
   end

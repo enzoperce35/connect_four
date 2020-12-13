@@ -25,13 +25,13 @@ class Grid
 
   def update(input)
     update_horizontal(input.reversed_index, input.token)
-    update_vertical(input.column_index, input.token)
-    update_diagonal([input.column_index, input.row_index], input.token)
+    update_vertical(input.row_index, input.token)
+    update_diagonal([input.row_index, input.column_index], input.token)
   end
 
-  def update_horizontal(index, token)
+  def update_horizontal(index, token) #start
     slot_found = false
-    horizontal.each do |line|
+    @horizontal.map do |line|
       if line[index] == "\u26AA " && !slot_found
         line[index] = token
         slot_found
@@ -44,7 +44,7 @@ class Grid
     slot_found = false
     vertical[index].each_with_index do |slot,ind|
       if slot == "\u26AA " && !slot_found
-        vertical[index][ind] = token
+        @vertical[index][ind] = token
         slot_found
         break
       end
@@ -78,7 +78,7 @@ class Grid
       end
     end
 
-    diagonal[dir == 'forward' ? 0 : 1] << token
+    @diagonal[dir == 'forward' ? 0 : 1] << token
     checked << input
     check_sequences((queue -= checked).shift, token, dir, queue, checked)
   end

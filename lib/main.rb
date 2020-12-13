@@ -1,5 +1,4 @@
 require_relative 'connect_four.rb'
-require './spec/spec_helper'
 
 def start(game)
   while !game.won
